@@ -20,4 +20,4 @@ class TestServices(TestCase):
     
     def test_gogenes(self):
         self.assertEqual(self.services.gogenes('GO:0009051'), ['PGLS', 'PGD', 'G6PD'])
-        self.assertEqual(self.services.gogenes('GO:0009052'), ['P49247', 'Q2QD12', 'P29401', 'P37837', 'Q96AT9', 'Q9UHJ6'])
+        self.assertEqual(self.services.gogenes('GO:0009052'), ['RPIA', 'RPEL1', 'TKT', 'TALDO1', 'RPE', 'SHPK'])

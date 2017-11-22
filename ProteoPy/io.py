@@ -2,17 +2,20 @@
 I/O functions
 """
 
+import os
+
 
 def read_weights(path):
     """
     Reads a file of protein weights
     """
     weights = {}
-    with open(args.weights) as weights_file:
+    with open(path) as weights_file:
         for line in weights_file:
             words = line.split()
             assert len(words) == 2
             weights[words[0]] = float(words[1])
+    return weights
 
 
 def read_compartment(path):
@@ -41,7 +44,7 @@ def read_compartments(path):
             compartment_proteins.append(read_compartment(p))
             compartment_names.append(c)
 
-    return compartment_names, compartments_proteins
+    return compartment_names, compartment_proteins
 
 
 def write_list_tsv(out, l):
@@ -51,6 +54,6 @@ def write_list_tsv(out, l):
 
     for i, v in enumerate(l):
         if i < len(l) - 1:
-            out.write(v + '\t')
+            out.write(str(v) + '\t')
         else:
-            out.write(v + '\n')
+            out.write(str(v) + '\n')
