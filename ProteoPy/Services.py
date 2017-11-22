@@ -16,7 +16,6 @@ class Services(object):
         self._mygene = mygene.MyGeneInfo()
 
 
-
     def uniprot_data(self, uniprotid):
         """
         Return the mass and sequence length of a protein, from its Uniprot ID.
@@ -33,15 +32,14 @@ class Services(object):
         return mass, leng
 
 
-
     def uniprot_id(self, geneid):
         """
         Gene id to uniprot id
         """
-
+        
         uniprotid = self._mygene.query(geneid, scopes='symbol', fields='uniprot.Swiss-Prot',
                                        species='human')['hits'][0]['uniprot']['Swiss-Prot']
-
+    
         if isinstance(uniprotid, list):
             uniprotid = uniprotid[0]
 
@@ -49,12 +47,27 @@ class Services(object):
         return uniprotid
 
 
-    def gogenes(self, goid):
+    def goproteins(self, goid):
         """
         List of proteins (Uniprot IDs) for a GO annotation.
         """
+        
+        #ProteoPy.util.stdoutquiet()
+        query = self._mygene.query(goid, scopes='goid', fields='uniprot.Swiss-Prot',
+                                   species='human', fetch_all=True, verbose=False)
 
-        result = self._mygene.query(goid, scopes='goid', fields='uniprot.Swiss-Prot',
-                                    species='human')['hits']
-        prots = [str(r['uniprot']['Swiss-Prot']) for r in result]
+        prots = [str(q['uniprot']['Swiss-Prot']) for q in query]
         return prots
+
+    
+    def gogenes(self, goid):
+        """
+        List of genes for a GO annotation.
+        """
+        
+        #ProteoPy.util.stdoutquiet()
+        query = self._mygene.query(goid, scopes='goid', fields='symbol',
+                                   species='human', fetch_all=True, verbose=False)
+
+        genes = [str(q['symbol']) for q in query]
+        return genes

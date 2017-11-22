@@ -2,12 +2,12 @@
 
 import ProteoPy
 import argparse
+import os
+
 
 parser = argparse.ArgumentParser(description='Calculate proteome fractions')
 parser.add_argument('--compartments', type=str, help='list of compartment definitions')
-parser.add_argument('--proteome', type=str, help='proteome file')
-parser.add_argument('--columns', type=int, nargs='+', help='sample columns')
-parser.add_argument('--header', type=int, help='number of header lines')
+parser.add_argument('--proteome', type=str, help='proteome file. First column contains protein names')
 parser.add_argument('--weights', type=str, help='optional, molecular weights of proteins')
 parser.add_argument('--out', type=str)
 args = parser.parse_args()
@@ -18,44 +18,44 @@ Proteins are given in abundances.
 """
 
 
-def read_compartment_file(path):
-    compartments = {}
-    with open(path) as compartment_file:
-        for line in compartment_file:
-            assert len(line.split())
-    return compartments
+# determine number of samples
+with open(args.proteome) as proteome_file:
+    for line in args.proteome:
+        words = line.split()
+        samples = length(words) - 1  # first column is protein names
+        sample_names = words[1:]
+        break
 
 
-with open(args.compartments) as compartments_list:
-    for compartment in compartments_list:
-        with open(compartment) as compartment_file:
+# load weights if passed
+if args.weights:
+    weights = ProteoPy.io.read_weights(args.weights)
 
+
+# read compartments
+compartment_names, compartment_proteins = ProteoPy.io.read_compartments(args.compartments)
+
+# initialize fractions
+psi = [[0.] * samples] * len(compartment_names)
+
+
+with open(args.proteome) as proteome_file:
+    for line in args.proteome:
+        words = line.split()
+        assert len(words) == samples + 1
+        protein = words[0]
         
-        assert compartment not in compartments
-        compartments[compartment] = []
-       
-            for line in compartment_file:
-                assert len(line.split()) == 1
-                compartments[compartment].append(line.rstrip())
+        i = ProteoPy.util.compartmentidx(protein, compartment_proteins)
+
+        for s in range(samples):
+            psi[i][s] += float(words[s + 1])
 
 
-phi = {}
-
-
-
-# determine number of cell lines
-for line in args.proteome:
-    words = line.split()
-    for col in args[columns]:
-        p = float(words[col])
-
-
-
-UNIP = bioservices.UniProt();
-KEGG = bioservices.KEGG();
-glycolysis_kegg = [s.split('\t')[-1] for s in KEGG.link('hsa', 'hsa00010').split('\n')];
-fatty_acid_kegg = [s.split('\t')[-1] for s in KEGG.link('hsa', 'hsa00061').split('\n')];
-pentose_ph_kegg = [s.split('\t')[-1] for s in KEGG.link('hsa', 'hsa00030').split('\n')];
-
-
+with open(args.out, 'w') as out_file:
+    # write sample names
+    ProteoPy.io.write_list_tsv(out_file, sample_names)
+    
+    for i in range(len(compartment_names)):
+        out_file.write(compartment_names[i])
+        ProteoPy.io.write_list_tsv(out_file, psi[i])
 

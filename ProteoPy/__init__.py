@@ -1,4 +1,6 @@
 """
 Simple tools to handle proteomics data.
 """
-from .Services import Services
+from ProteoPy.Services import Services
+import ProteoPy.io
+import ProteoPy.util

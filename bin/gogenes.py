@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-
 import argparse
 import ProteoPy
 
 parser = argparse.ArgumentParser(description='List of genes with a GO annotation')
-parser.add_argument('--GO', type=str, help='list of genes')
+parser.add_argument('go', type=str, help='GO terms', nargs='+')
 args = parser.parse_args()
 
 serv = ProteoPy.Services()
-proteins = serv.gogenes('GO:' + args.GO)
 
-for p in prots:
-    print p
+for go in args.go:
+    for g in serv.gogenes(go):
+        print g
