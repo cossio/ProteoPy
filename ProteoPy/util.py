@@ -6,11 +6,31 @@ import os
 import sys
 
 
-def compartmentidx(protein, compartment_proteins):
-    "Get the compartment of a protein"
-    for i, s in enumerate(compartment_proteins):
-        for p in protein.split(';'):
-            if p in s:
+def compartmentidx(element, compartment_elements):
+    "Get the compartment of an element"
+    for i, s in enumerate(compartment_elements):
+        for e in element.split(';'):
+            if e in s:
                 return i
     else:
         return None
+
+
+def getweight(protein, weights):
+    "Get the weight of a protein"
+    
+    proteins = protein.split(';')
+    for p in proteins:
+        if p in weights:
+            return weights[p]
+    else:
+        return None
+
+
+def flatten(container):
+    for x in container:
+        if isinstance(x, (list,tuple)):
+            for y in flatten(x):
+                yield y
+        else:
+            yield x

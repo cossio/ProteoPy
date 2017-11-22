@@ -4,6 +4,8 @@ Contains the Services class
 import bioservices
 import mygene
 
+from . import util
+
 
 class Services(object):
     """
@@ -22,13 +24,13 @@ class Services(object):
         """
 
         uniprot_xml = self._unipro.retrieve(uniprotid + '_HUMAN', frmt='xml')
-        
+
         mass = float([el.get('mass') for el in uniprot_xml.findAll('sequence')
-                                     if 'mass' in el.attrs][0])
-        
+                      if 'mass' in el.attrs][0])
+
         leng = float([el.get('length') for el in uniprot_xml.findAll('sequence')
-                                       if 'length' in el.attrs][0])
-        
+                      if 'length' in el.attrs][0])
+
         return mass, leng
 
 
@@ -36,10 +38,10 @@ class Services(object):
         """
         Gene id to uniprot id
         """
-        
+
         uniprotid = self._mygene.query(geneid, scopes='symbol', fields='uniprot.Swiss-Prot',
                                        species='human')['hits'][0]['uniprot']['Swiss-Prot']
-    
+
         if isinstance(uniprotid, list):
             uniprotid = uniprotid[0]
 
@@ -51,21 +53,22 @@ class Services(object):
         """
         List of proteins (Uniprot IDs) for a GO annotation.
         """
-        
-        #ProteoPy.util.stdoutquiet()
+
         query = self._mygene.query(goid, scopes='goid', fields='uniprot.Swiss-Prot',
                                    species='human', fetch_all=True, verbose=False)
 
-        prots = [str(q['uniprot']['Swiss-Prot']) for q in query]
-        return prots
+        result = [str(q['uniprot']['Swiss-Prot']) for q in query if 'uniprot' in q]
+        # sometimes there are items like "[u'Q9BXH1', u'Q96PG8']", we need to flatten them
+        result = [eval(r) if '[' in r else r for r in result]
+        result = [str(r) for r in util.flatten(result)]
+        return result
 
-    
+
     def gogenes(self, goid):
         """
         List of genes for a GO annotation.
         """
-        
-        #ProteoPy.util.stdoutquiet()
+
         query = self._mygene.query(goid, scopes='goid', fields='symbol',
                                    species='human', fetch_all=True, verbose=False)
 

@@ -1,30 +1,36 @@
 #!/usr/bin/env python
 
+"""
+Get basic information from Uniprot (mass and/or sequence length) from a list of gene symbols.
+"""
 
+import sys
 import argparse
 import ProteoPy
-import sys
 
 
-parser = argparse.ArgumentParser(description='Get basic information from Uniprot from a list of gene names')
-parser.add_argument('--genes', type=str, help='list of genes')
-parser.add_argument('--out', type=str, help='output file')
-parser.add_argument('--uniprot', action='store_true', help='uniprot ID')
-parser.add_argument('--mass', action='store_true', help='molar mass')
-parser.add_argument('--length', action='store_true', help='sequence length')
-args = parser.parse_args()
+PARSER = argparse.ArgumentParser(
+    description='Get basic information from Uniprot from a list of gene names')
+PARSER.add_argument('--genes', type=str, help='list of genes')
+PARSER.add_argument('--out', type=str, help='output file')
+PARSER.add_argument('--uniprot', action='store_true', help='uniprot ID')
+PARSER.add_argument('--mass', action='store_true', help='molar mass')
+PARSER.add_argument('--length', action='store_true', help='sequence length')
+ARGS = PARSER.parse_args()
 
-
-serv = ProteoPy.Services()
+SERV = ProteoPy.Services()
 
 
 with open(args.genes) as genes_file, open(args.out, 'w', 1) as out_file:
-    
+
     # column headers
     out_file.write('gene')
-    if args.uniprot: out_file.write('\tuniprot')
-    if args.mass: out_file.write('\tmass')
-    if args.length: out_file.write('\tlength')
+    if args.uniprot:
+        out_file.write('\tuniprot')
+    if args.mass:
+        out_file.write('\tmass')
+    if args.length:
+        out_file.write('\tlength')
     out_file.write('\n')
 
     for (lno, gene_names) in enumerate(genes_file):
@@ -59,4 +65,3 @@ with open(args.genes) as genes_file, open(args.out, 'w', 1) as out_file:
             if args.length:
                 out_file.write('\t' + str(length))
             out_file.write('\n')
-            

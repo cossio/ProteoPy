@@ -1,8 +1,16 @@
+"""
+Tests for the Services class
+"""
+
 from unittest import TestCase
 
 import ProteoPy
 
 class TestServices(TestCase):
+    """
+    Contains tests for the Services class
+    """
+    
     def setUp(self):
         self.services = ProteoPy.Services()
 

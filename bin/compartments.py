@@ -1,16 +1,26 @@
 #!/usr/bin/env python
 
-import ProteoPy
-import argparse
+'''
+Calculate compartment proteomic fractions from proteomics data.
+'''
+
 import os
+import argparse
+import ProteoPy
 
 
-parser = argparse.ArgumentParser(description='Calculate proteome fractions')
-parser.add_argument('--compartments', type=str, help='list of compartment definitions')
-parser.add_argument('--proteome', type=str, help='proteome file. First column contains protein names')
-parser.add_argument('--weights', type=str, help='optional, molecular weights of proteins')
-parser.add_argument('--out', type=str)
-args = parser.parse_args()
+PARSER = argparse.ArgumentParser(description='Calculate proteome fractions',
+                                 fromfile_prefix_chars='@')
+PARSER.add_argument('--compartments_by_gene', type=str, 
+                    help='list of compartment definitions, by gene symbols')
+PARSER.add_argument('--compartments_by_prot', type=str, 
+                    help='list of compartment definitions, by uniprot IDs')
+PARSER.add_argument('--proteome', type=str, 
+                    help='proteome file. Columns: uniprot ids, gene symbols, samples')
+PARSER.add_argument('--weights_by_gene', type=str, help='molecular weights')
+PARSER.add_argument('--weights_by_prot', type=str, help='molecular weights')
+PARSER.add_argument('--out', type=str)
+ARGS = PARSER.parse_args()
 
 
 """
@@ -18,69 +28,85 @@ Proteins are given in abundances.
 """
 
 
-# determine number of samples
-with open(args.proteome) as proteome_file:
+# read sample names
+with open(ARGS.proteome.strip()) as proteome_file:
     for line in proteome_file:
-        words = line.split()
-        print words
-        samples = len(words) - 1  # first column is protein names
-        sample_names = words[1:]
+        words = line.split('\t')
+        samples = len(words) - 2  # first columns are protein and gene names
+        sample_names = words[2:]
         break
 
-print 'Number of samples is ' + str(samples)
 
-
-# load weights if passed
-if args.weights:
-    weights = ProteoPy.io.read_weights(args.weights)
-    print 'Weights loaded'
-
+# load weights
+gene_weights = ProteoPy.io.read_weights(ARGS.weights_by_gene.strip())
+prot_weights = ProteoPy.io.read_weights(ARGS.weights_by_prot.strip())
 
 # read compartments
-compartment_names, compartment_proteins = ProteoPy.io.read_compartments(args.compartments)
-
+compartments_by_gene_names, compartments_by_gene_proteins = ProteoPy.io.read_compartments(ARGS.compartments_by_gene.strip())
+compartments_by_prot_names, compartments_by_prot_proteins = ProteoPy.io.read_compartments(ARGS.compartments_by_prot.strip())
+compartment_names = set(compartments_by_gene_names).union(compartments_by_prot_names)
+compartment_names.add('Other')
 
 # initialize fractions
-psi = [[0.] * samples] * (1 + len(compartment_names))
+psi = {c: [0. for s in range(samples)] for c in compartment_names}
 
 
-with open(args.proteome) as proteome_file:
-    for line in proteome_file:
-        words = line.split()
-        if len(words) == samples:
-            words.insert(0, 'MissingName')
-        assert len(words) == samples + 1
-        
-        protein = words[0]
-        if args.weights and protein not in weights:
+with open(ARGS.proteome.strip()) as proteome_file:
+    for lineidx, line in enumerate(proteome_file):
+
+        if lineidx == 0: # skip header line
             continue
 
-        i = ProteoPy.util.compartmentidx(protein, compartment_proteins)
+        words = line.split('\t')
+        if len(words) != samples + 2:
+            print 'Bad line: ' + str(lineidx)
+            continue
+        assert len(words) == samples + 2
         
+        protids = words[0]
+        geneids = words[1]
+        i_by_gene = ProteoPy.util.compartmentidx(geneids, compartments_by_gene_proteins)
+        i_by_prot = ProteoPy.util.compartmentidx(protids, compartments_by_prot_proteins)
+        if i_by_gene:
+            c = compartments_by_gene_names[i_by_gene]
+        elif i_by_prot:
+            c = compartments_by_prot_names[i_by_prot]
+        else:
+            c = 'Other'
+
+        weight_by_gene = ProteoPy.util.getweight(geneids, gene_weights)
+        weight_by_prot = ProteoPy.util.getweight(geneids, prot_weights)
+        if weight_by_gene:
+            weight = weight_by_gene
+        elif weight_by_prot:
+            weight = weight_by_prot
+        else:
+            print geneids + ' has no weight, ignoring'
+            continue
+
+        print geneids + ', compartment=' + c + ', weight=' + str(weight)
+
         for s in range(samples):
-            x = float(words[s + 1])
-            if args.weights:
-                x *= weights[protein]
-            if i:
-                psi[i][s] += x
-            else:
-                psi[-1][s] += x
+            psi[c][s] += float(words[s + 2]) * weight
+
+# sanity check
+assert len(compartment_names) == len(psi)
+for c in compartment_names:
+    assert len(psi[c]) == samples
+
 
 # normalize
 for s in range(samples):
-    N = sum(psi[i][s] for i in range(len(psi)))
-    for i in range(len([psi])):
-        psi[i][s] /= N
+    N = sum(psi[c][s] for c in compartment_names)
+    for c in compartment_names:
+        psi[c][s] = psi[c][s] / N
 
 
-with open(args.out, 'w') as out_file:
+with open(ARGS.out.strip(), 'w') as out_file:
     # write sample names
+    out_file.write('compartment\t')
     ProteoPy.io.write_list_tsv(out_file, sample_names)
-    
-    for i in range(len(psi)):
-        if i < len(compartment_names):
-            out_file.write(compartment_names[i])
-        else:
-            out_file.write('other')
-        ProteoPy.io.write_list_tsv(out_file, psi[i])
 
+    for i, c in enumerate(compartment_names):
+        out_file.write(c + '\t')
+        ProteoPy.io.write_list_tsv(out_file, psi[c])
