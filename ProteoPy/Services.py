@@ -69,8 +69,38 @@ class Services(object):
         List of genes for a GO annotation.
         """
 
-        query = self._mygene.query(goid, scopes='goid', fields='symbol',
+        query = self._mygene.query(goid, scopes='goid', fields='symbol,alias',
                                    species='human', fetch_all=True, verbose=False)
 
-        genes = [str(q['symbol']) for q in query]
+        genes = []
+        for q in query:
+            genes.append(str(q['symbol']))
+            if 'alias' in q:
+                if isinstance(q['alias'], list):
+                    for a in q['alias']:
+                        genes.append(str(a))
+                else:
+                    genes.append(str(q['alias']))
+
+        return genes
+
+
+    def genealias(self, gene):
+        """
+        List of aliases of a gene
+        """
+
+        query = self._mygene.query(gene, scopes='sybmol', fields='symbol,alias',
+                                   species='human', fetch_all=True, verbose=False)
+
+        genes = []
+        for hit in query:
+            genes.append(str(hit['symbol']))
+            if 'alias' in hit:
+                if isinstance(hit['alias'], list):
+                    for alias in hit['alias']:
+                        genes.append(str(alias))
+                else:
+                    genes.append(str(hit['alias']))
+
         return genes

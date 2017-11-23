@@ -4,6 +4,7 @@
 import argparse
 import ProteoPy
 import sys
+import ColorPrintPy as COL  # https://github.com/cossio/ColorPrintPy
 
 
 parser = argparse.ArgumentParser(description='Get basic information from Uniprot from a list of Uniprot IDs')
@@ -37,7 +38,7 @@ with open(args.prots) as prots_file, open(args.out, 'w', 1) as out_file:
                 except KeyboardInterrupt:
                     raise
                 except:
-                    print 'error retrieving mass or length of ' + pid + ' ... skipping'
+                    print COL.colstr(COL.WARNING, 'error retrieving mass or length of ' + pid + ' ... skipping')
                     continue
 
             out_file.write(pid)

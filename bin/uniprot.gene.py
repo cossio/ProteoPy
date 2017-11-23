@@ -7,6 +7,7 @@ Get basic information from Uniprot (mass and/or sequence length) from a list of 
 import sys
 import argparse
 import ProteoPy
+import ColorPrintPy as COL  # https://github.com/cossio/ColorPrintPy
 
 
 PARSER = argparse.ArgumentParser(
@@ -45,7 +46,7 @@ with open(args.genes) as genes_file, open(args.out, 'w', 1) as out_file:
             except KeyboardInterrupt:
                 raise
             except:
-                print 'error retrieving uniprot id of ' + gene
+                print COL.colstr(COL.WARNING, 'error retrieving uniprot id of ' + gene)
                 continue
 
             if args.mass or args.length:
@@ -54,7 +55,7 @@ with open(args.genes) as genes_file, open(args.out, 'w', 1) as out_file:
                 except KeyboardInterrupt:
                     raise
                 except:
-                    print 'error retrieving mass or length of ' + gene
+                    print COL.colstr(COL.WARNING, 'error retrieving mass or length of ' + gene)
                     raise
 
             out_file.write(gene)

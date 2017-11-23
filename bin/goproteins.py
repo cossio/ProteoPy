@@ -9,7 +9,7 @@ import ProteoPy
 
 PARSER = argparse.ArgumentParser(description='List of proteins with a GO annotation')
 PARSER.add_argument('go', type=str, help='GO terms', nargs='+')
-ARGS = parser.parse_args()
+ARGS = PARSER.parse_args()
 
 SERV = ProteoPy.Services()
 
