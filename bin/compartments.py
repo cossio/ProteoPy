@@ -7,7 +7,6 @@ Calculate compartment proteomic fractions from proteomics data.
 import os
 import argparse
 import ProteoPy
-import ColorPrintPy as COL  # https://github.com/cossio/ColorPrintPy
 
 
 PARSER = argparse.ArgumentParser(description='Calculate proteome fractions',
@@ -60,7 +59,7 @@ with open(ARGS.proteome.strip()) as proteome_file:
 
         words = line.split('\t')
         if len(words) != samples + 2:
-            print COL.colstr(COL.WARNING, 'Bad line in ' + ARGS.proteome + ' line number ' + str(lineidx) + ' ... skipping')
+            ProteoPy.util.printwarn('Bad line in ' + ARGS.proteome + ' line number ' + str(lineidx) + ' ... skipping')
             continue
         assert len(words) == samples + 2
 
@@ -87,11 +86,11 @@ with open(ARGS.proteome.strip()) as proteome_file:
         elif weight_by_prot != None:
             weight = weight_by_prot
         else:
-            print COL.colstr(COL.WARNING, 'Gene ' + geneids + ' (protein ' + protids + ') has no weight... ignoring')
+            ProteoPy.util.printwarn('Gene ' + geneids + ' (protein ' + protids + ') has no weight... ignoring')
             continue
         
-        if geneids == 'SHMT2'
-            print COL.colstr(COL.OKBLUE, geneids + ', compartment=' + c + ', weight=' + str(weight))
+        if geneids == 'SHMT2':
+            ProteoPy.util.printinfo(geneids + ', compartment=' + c + ', weight=' + str(weight))
 
         for s in range(samples):
             psi[c][s] += float(words[s + 2]) * weight

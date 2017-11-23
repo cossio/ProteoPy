@@ -17,7 +17,7 @@ for gene in ARGS.gene:
     try:
         prots = SERV.genealias(gene)
     except:
-        print bcolors.WARNING + 'ERROR: ' + gene + bcolors.ENDC
+        ProteoPy.util.printwarn('ERROR: ' + gene)
         continue
 
     for p in prots:

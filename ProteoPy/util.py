@@ -4,6 +4,7 @@ Miscelanous utility functions
 
 import os
 import sys
+from termcolor import cprint, colored
 
 
 def compartmentidx(element, compartment_elements):
@@ -34,3 +35,19 @@ def flatten(container):
                 yield y
         else:
             yield x
+
+
+def printwarn(text):
+    '''
+    Prints in the warning style
+    '''
+
+    cprint(text, 'yellow', 'on_blue', attrs=['bold'])
+
+
+def printinfo(text):
+    '''
+    Prints in the info style
+    '''
+
+    cprint(text, 'blue', attrs=['bold'])

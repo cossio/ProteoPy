@@ -3,8 +3,7 @@ I/O functions
 """
 
 import os
-import ColorPrintPy as COL  # https://github.com/cossio/ColorPrintPy
-
+from . import util
 
 
 def read_weights(path):
@@ -19,7 +18,7 @@ def read_weights(path):
             try:
                 weights[words[0]] = float(words[1])
             except ValueError:
-                print COL.colstr(COL.WARNING, "Invalid weight in " + path + ", line number " + str(lineidx) + ' ... skipping')
+                util.printwarn("Invalid weight in " + path + ", line number " + str(lineidx) + ' ... skipping')
                 continue
     return weights
 

@@ -1,29 +1,30 @@
 #!/usr/bin/env python
 
 
+import sys
 import argparse
 import ProteoPy
-import sys
-import ColorPrintPy as COL  # https://github.com/cossio/ColorPrintPy
 
 
-parser = argparse.ArgumentParser(description='Get basic information from Uniprot from a list of Uniprot IDs')
-parser.add_argument('--prots', type=str, help='list of proteins')
-parser.add_argument('--out', type=str, help='output file')
-parser.add_argument('--mass', action='store_true', help='molar mass')
-parser.add_argument('--length', action='store_true', help='sequence length')
-args = parser.parse_args()
+PARSER = argparse.ArgumentParser(description='Get basic information from Uniprot from a list of Uniprot IDs')
+PARSER.add_argument('--prots', type=str, help='list of proteins')
+PARSER.add_argument('--out', type=str, help='output file')
+PARSER.add_argument('--mass', action='store_true', help='molar mass')
+PARSER.add_argument('--length', action='store_true', help='sequence length')
+ARGS = PARSER.parse_args()
 
 
-serv = ProteoPy.Services()
+SERV = ProteoPy.Services()
 
 
-with open(args.prots) as prots_file, open(args.out, 'w', 1) as out_file:
-    
+with open(ARGS.prots) as prots_file, open(ARGS.out, 'w', 1) as out_file:
+
     # column headers
     out_file.write('UniprotID')
-    if args.mass: out_file.write('\tmass')
-    if args.length: out_file.write('\tlength')
+    if ARGS.mass:
+        out_file.write('\tmass')
+    if ARGS.length:
+        out_file.write('\tlength')
     out_file.write('\n')
 
     for (lno, names) in enumerate(prots_file):
@@ -32,19 +33,19 @@ with open(args.prots) as prots_file, open(args.out, 'w', 1) as out_file:
 
         for pid in names.split(';'):
             pid = pid.rstrip()
-            if args.mass or args.length:
+            if ARGS.mass or ARGS.length:
                 try:
-                    mass, length = serv.uniprot_data(pid)
+                    mass, length = SERV.uniprot_data(pid)
                 except KeyboardInterrupt:
                     raise
                 except:
-                    print COL.colstr(COL.WARNING, 'error retrieving mass or length of ' + pid + ' ... skipping')
+                    ProteoPy.util.printwarn('error retrieving mass or length of ' + pid + ' ... skipping')
                     continue
 
             out_file.write(pid)
-            if args.mass:
+            if ARGS.mass:
                 out_file.write('\t' + str(mass))
-            if args.length:
+            if ARGS.length:
                 out_file.write('\t' + str(length))
             out_file.write('\n')
             

@@ -15,7 +15,7 @@ setup(name='ProteoPy', version='0.1.0', license='MIT',
       scripts=glob.glob("bin/*.py") + glob.glob("bin/*.sh"),
       long_description=open('README.md').read(),
       zip_safe=False,
-      setup_requires=['bioservices', 'mygene'],
+      setup_requires=['bioservices', 'mygene', 'termcolor'],
       test_suite='nose.collector',
       tests_require=['nose'],
       include_package_data=True)
