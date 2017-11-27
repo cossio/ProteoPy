@@ -51,3 +51,10 @@ class TestServices(TestCase):
                          ['RPIA', 'RPI', 'RPIAD', 'RPEL1', 'TKT', 'HEL-S-48', 'HEL107',
                           'SDDHD', 'TK', 'TKT1', 'TALDO1', 'TAL', 'TAL-H', 'TALDOR',
                           'TALH', 'RPE', 'RPE2-1', 'SHPK', 'CARKL', 'SHK'])
+
+
+    def test_uniprotToEC(self):
+        '''
+        Tests Services.uniprotToEC(...)
+        '''
+        self.assertEqual(self.services.uniprotToEC('P52790'), '2.7.1.1')
