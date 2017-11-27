@@ -48,6 +48,15 @@ class Services(object):
         uniprotid = str(uniprotid)
         return uniprotid
 
+    
+    def uniprotToEC(self, uniprotid):
+        """
+        Uniprot id to enzyme commision number (E.C. number)
+        """
+
+        q = self._mygene.query(uniprotid, scopes='uniprot', fields='ec', species='human')
+        return str(q['hits'][0]['ec'])
+
 
     def goproteins(self, goid):
         """
@@ -90,7 +99,7 @@ class Services(object):
         List of aliases of a gene
         """
 
-        query = self._mygene.query(gene, scopes='sybmol', fields='symbol,alias',
+        query = self._mygene.query(gene, scopes='symbol', fields='symbol,alias',
                                    species='human', fetch_all=True, verbose=False)
 
         genes = []
@@ -104,3 +113,14 @@ class Services(object):
                     genes.append(str(hit['alias']))
 
         return genes
+
+
+    def genename(self, gene):
+        '''
+        Gene name from gene symbol
+        '''
+
+        query = self._mygene.query(gene, scopes='symbol', fields='name',
+                                   species='human', fetch_all=True, verbose=False)
+
+        return str(next(query)['name'])
