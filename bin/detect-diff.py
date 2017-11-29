@@ -2,6 +2,7 @@
 
 import argparse
 import scipy.stats
+import numpy
 import ProteoPy
 
 
@@ -46,7 +47,7 @@ for g1, group1 in enumerate(groups):
 
             diff = {}
 
-            with open(ARGS.out + name + '.out', 'w') as out, open(ARGS.data) as dat:
+            with open(ARGS.data) as dat:
 
                 for i, line in enumerate(dat):
 
@@ -70,13 +71,12 @@ for g1, group1 in enumerate(groups):
                         gene = words[ARGS.colname - 1]
                         diff[gene] = numpy.float64(m1)/m2
 
-                    if p < 0.05 and m1 != m2:
-                        if m2 == 0 or m2 != 0 and m1/m2 < ARGS.fold:
-                            gene = words[ARGS.colname - 1]
-                            diff[gene] = m1/m2
-                            out.write(gene + '\n')
+                    # if p < 0.05 and m1 != m2:
+                    #     if m2 == 0 or m2 != 0 and m1/m2 < ARGS.fold:
+                    #         gene = words[ARGS.colname - 1]
+                    #         diff[gene] = m1/m2
+                    #         out.write(gene + '\n')
             
             with open(ARGS.out + name + '.out', 'w') as out:
-
-                for key, value in sorted(mydict.iteritems(), key=lambda (k,v): (v,k)):
-                    print "%s: %s" % (key, value)
+                for k,v in sorted(diff.iteritems(), key=lambda (k,v): (v,k)):
+                    out.write(k + '\t' + str(v) + '\n')
