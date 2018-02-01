@@ -11,4 +11,4 @@ serv = ProteoPy.Services()
 
 for go in args.go:
     for g in serv.gogenes(go):
-        print g
+        print(g)

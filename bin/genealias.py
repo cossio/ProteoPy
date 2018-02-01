@@ -21,4 +21,4 @@ for gene in ARGS.gene:
         continue
 
     for p in prots:
-        print p
+        print(p)

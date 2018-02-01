@@ -19,7 +19,7 @@ SERV = ProteoPy.Services()
 
 def printgenename(g):
     try:
-        print g + '\t' + SERV.genename(gene)
+        print(g + '\t' + SERV.genename(gene))
     except KeyboardInterrupt:
         raise
     except:

@@ -17,8 +17,8 @@ for go in ARGS.go:
     try:
         prots = SERV.goproteins(go)
     except:
-        print go
+        print(go)
         raise
 
     for p in prots:
-        print p
+        print(p)

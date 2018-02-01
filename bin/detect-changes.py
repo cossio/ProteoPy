@@ -30,4 +30,4 @@ assert len(X1) == len(X2) == len(names)
 
 for x1, x2, name in zip(X1, X2, names):
     if x2 / x1 > ARGS.thresh:
-        print name.strip()
+        print(name.strip())

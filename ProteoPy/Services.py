@@ -48,7 +48,7 @@ class Services(object):
         uniprotid = str(uniprotid)
         return uniprotid
 
-    
+
     def uniprotToEC(self, uniprotid):
         """
         Uniprot id to enzyme commision number (E.C. number)
